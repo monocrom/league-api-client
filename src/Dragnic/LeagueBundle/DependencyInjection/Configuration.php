@@ -1,5 +1,4 @@
 <?php
-
 namespace Dragnic\LeagueBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -18,11 +17,13 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('dragnic_league');
+        $rootNode    = $treeBuilder->root(DragnicLeagueExtension::EXT_KEY);
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode->children()
+            ->scalarNode('rest_base_url')->isRequired()->end()
+            ->scalarNode('api_route_prefix')->defaultValue('league_api_')->end()
+            ->scalarNode('rest_api_key')->isRequired()->end()
+        ->end();
 
         return $treeBuilder;
     }

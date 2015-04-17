@@ -1,5 +1,4 @@
 <?php
-
 namespace Dragnic\LeagueBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,6 +13,8 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 class DragnicLeagueExtension extends Extension
 {
+    const EXT_KEY = 'dragnic_league';
+
     /**
      * {@inheritdoc}
      */
@@ -24,5 +25,9 @@ class DragnicLeagueExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        foreach ($config as $key => $value) {
+            $container->setParameter(self::EXT_KEY . '.' . $key, $value);
+        }
     }
 }

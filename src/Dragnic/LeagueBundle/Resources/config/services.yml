@@ -1,4 +1,30 @@
 services:
-#    dragnic_league.example:
-#        class: Dragnic\LeagueBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+    dragnic_league.controller.champion:
+        class: %dragnic_league.controller.champion.class%
+        arguments: [@dragnic_league.repository.repository]
+
+    dragnic_league.repository.repository:
+        class: %dragnic_league.repository.repository.class%
+        arguments: [@doctrine.orm.entity_manager, @dragnic_league.rest.client]
+
+    dragnic_league.rest.serializer:
+        class: %dragnic_league.rest.serializer.class%
+        arguments:
+            - @jms_serializer
+            - { champions: Dragnic\LeagueBundle\Entity\ChampionResponse }
+            - json
+
+    dragnic_league.rest.client:
+        class: %dragnic_league.rest.client.class%
+        arguments:
+            - @router
+            - @dragnic_league.rest.serializer
+            - %dragnic_league.rest_base_url%
+            - %dragnic_league.api_route_prefix%
+            - %dragnic_league.rest_api_key%
+
+parameters:
+    dragnic_league.controller.champion.class:   Dragnic\LeagueBundle\Controller\ChampionController
+    dragnic_league.rest.client.class:           Dragnic\LeagueBundle\Rest\Client
+    dragnic_league.rest.serializer.class:       Dragnic\LeagueBundle\Rest\EntitySerializer
+    dragnic_league.repository.repository.class: Dragnic\LeagueBundle\Repository\Repository

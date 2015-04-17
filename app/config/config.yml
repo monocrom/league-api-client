@@ -3,6 +3,10 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
 
+dragnic_league:
+    rest_base_url: %rest_base_url%
+    rest_api_key: %rest_api_key%
+
 framework:
     #esi:             ~
     #translator:      { fallbacks: ["%locale%"] }

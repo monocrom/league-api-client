@@ -1,3 +1,11 @@
-dragnic_league_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: DragnicLeagueBundle:Default:index }
+dragnic_league:
+    resource: "@DragnicLeagueBundle/Resources/config/league_api_routes.yml"
+    prefix: /api/lol
+
+dragnic_league_champion_list:
+    path:     /
+    defaults: { _controller: dragnic_league.controller.champion:listAction }
+
+dragnic_league_champion_show:
+    path:     /champion/{id}
+    defaults: { _controller: dragnic_league.controller.champion:showAction }
