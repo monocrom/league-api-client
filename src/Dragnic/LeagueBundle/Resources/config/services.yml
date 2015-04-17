@@ -1,0 +1,4 @@
+services:
+#    dragnic_league.example:
+#        class: Dragnic\LeagueBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]
