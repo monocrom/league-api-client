@@ -1,8 +1,11 @@
 league_api_champions:
-    path: /{region}/v1.2/champion
+    path: /static-data/{region}/v1.2/champion
     defaults: { region: euw }
 
 league_api_champion:
-    path: /{region}/v1.2/champion/{id}
+    path: /static-data/{region}/v1.2/champion/{id}
     defaults: { region: euw }
-    prefix: /api/lol
+
+league_api_realm:
+    path: /static-data/{region}/v1.2/realm
+    defaults: { region: euw }

@@ -1,0 +1,8 @@
+<div class="champions">
+{% for champion in champions %}
+    <div class="champion" id="champion-{{ champion.id }}">
+        <img src="{{ league_image(champion.image) }}"
+        <span>{{ champion.name }}</span>
+    </div>
+{% endfor %}
+</div>

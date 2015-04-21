@@ -1,54 +1,106 @@
 <?php
 namespace Dragnic\LeagueBundle\Rest;
 
-use JMS\Serializer\DeserializationContext;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerInterface;
+use Dragnic\LeagueBundle\Entity\Entity;
+use Dragnic\LeagueBundle\Entity\LazyEntity;
+use Dragnic\LeagueBundle\Repository\Repository;
 
-class EntitySerializer implements SerializerInterface
+class EntitySerializer
 {
-    private $serializer;
-    private $typeMap;
+    /** @var Repository */
+    private $repository;
 
-    public function __construct(SerializerInterface $serializer, array $typeMap, $defaultFormat)
+    public function __construct(array $lazyMap = null)
     {
-        $this->serializer = $serializer;
-        $this->typeMap = $typeMap;
-        $this->defaultFormat = $defaultFormat;
+        $this->lazyMap = null === $lazyMap ? array() : $lazyMap;
+        $this->repository = null;
     }
 
     /**
      * @inheritDoc
      */
-    public function serialize($data, $format = null, SerializationContext $context = null)
+    public function serialize(Entity $entity)
     {
-        return $this->serializer->serialize($data, $this->getFormat($format), $context);
+        $string = json_encode($entity->toArray());
+
+        return $string;
     }
 
     /**
      * @inheritDoc
      */
-    public function deserialize($data, $type = null, $format = null, DeserializationContext $context = null)
+    public function deserialize($string, $accessor = null, Repository $repository = null)
     {
-        $type = $this->getType($type);
-        $format = $this->getFormat($format);
-
-        return $this->serializer->deserialize($data, $type, $format, $context);
-    }
-
-    protected function getType($type = null)
-    {
-        if (null !== $type && array_key_exists($type, $this->typeMap)) {
-            $type = $this->typeMap[$type];
+        if (null !== $repository && null === $this->repository) {
+            $this->repository = $repository;
         }
 
-        return $type;
+        $data = json_decode($string, true);
+        if (array_key_exists('data', $data)) {
+            $object = $this->factoryEntities($data['data'], $accessor);
+        } else {
+            $object = null;
+        }
+
+        return $object;
     }
 
-    protected function getFormat($format = null)
+    protected function factoryEntities($data, $accessor = null)
     {
-        $format = null === $format ? $this->defaultFormat : $format;
+        if (is_array($data)) {
+            $result = $this->factoryEntitiesFromArray($data, $accessor);
+        } else if (is_scalar($data)) {
+            $result = $data;
+        } else {
+            $result = null;
+        }
 
-        return $format;
+        return $result;
+    }
+
+    protected function factoryEntitiesFromArray(array $data, $accessor = null) {
+        if ($this->isCollection($data)) {
+            $result = $this->createCollection($data, $accessor);
+        } else {
+            $result = $this->createEntity($data, $accessor);
+        }
+
+        return $result;
+    }
+
+    protected function isCollection(array $data)
+    {
+        $keys = array_keys($data);
+
+        return count($keys) && is_numeric($keys[0]);
+    }
+
+    protected function createCollection(array $data, $accessor = null)
+    {
+        $collection = new \ArrayObject();
+
+        foreach ($data as $value) {
+            $value = $this->factoryEntities($value, $accessor);
+            if ($value) {
+                $collection->append($value);
+            }
+        }
+
+        return $collection;
+    }
+
+    protected function createEntity(array $data, $accessor = null)
+    {
+        $properties = array(
+            '__accessor' => $accessor,
+        );
+
+        foreach ($data as $propertyName => $value) {
+            $properties[$propertyName] = $this->factoryEntities($value, $propertyName);
+        }
+
+        $entity = new Entity($properties);
+
+        return $entity;
     }
 }

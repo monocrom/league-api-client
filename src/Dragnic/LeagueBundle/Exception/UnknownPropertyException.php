@@ -1,7 +1,7 @@
 <?php
 namespace Dragnic\LeagueBundle\Exception;
 
-class UnknownPropertyException extends Exception
+class UnknownPropertyException extends UnknownCallException
 {
 
 }

@@ -1,30 +1,38 @@
 services:
     dragnic_league.controller.champion:
         class: %dragnic_league.controller.champion.class%
-        arguments: [@dragnic_league.repository.repository]
+        arguments: [@twig, @dragnic_league.repository.repository]
 
     dragnic_league.repository.repository:
         class: %dragnic_league.repository.repository.class%
-        arguments: [@doctrine.orm.entity_manager, @dragnic_league.rest.client]
+        arguments:
+            - @doctrine.orm.entity_manager
+            - @dragnic_league.rest.client
+            - @dragnic_league.rest.serializer
 
     dragnic_league.rest.serializer:
         class: %dragnic_league.rest.serializer.class%
-        arguments:
-            - @jms_serializer
-            - { champions: Dragnic\LeagueBundle\Entity\ChampionResponse }
-            - json
+        arguments: []
+            #- { champions: champion }
 
     dragnic_league.rest.client:
         class: %dragnic_league.rest.client.class%
         arguments:
             - @router
-            - @dragnic_league.rest.serializer
             - %dragnic_league.rest_base_url%
             - %dragnic_league.api_route_prefix%
             - %dragnic_league.rest_api_key%
+            -
+                champions:
+                    champData: altimages,blurb,image,info,lore,partype,passive,skins,spells,stats,tags
+
+    dragnic_league.twig.league_image_extension:
+        class: %dragnic_league.twig.league_image_extension.class%
+        tags: [{ name: twig.extension }]
 
 parameters:
     dragnic_league.controller.champion.class:   Dragnic\LeagueBundle\Controller\ChampionController
     dragnic_league.rest.client.class:           Dragnic\LeagueBundle\Rest\Client
     dragnic_league.rest.serializer.class:       Dragnic\LeagueBundle\Rest\EntitySerializer
     dragnic_league.repository.repository.class: Dragnic\LeagueBundle\Repository\Repository
+    dragnic_league.twig.league_image_extension.class: Dragnic\LeagueBundle\Twig\ImageExtension

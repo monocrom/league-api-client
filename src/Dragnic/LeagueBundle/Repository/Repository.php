@@ -3,16 +3,19 @@ namespace Dragnic\LeagueBundle\Repository;
 
 use Doctrine\ORM\EntityManager;
 use Dragnic\LeagueBundle\Rest\Client;
+use Dragnic\LeagueBundle\Rest\EntitySerializer;
 
 class Repository
 {
     private $entityManager;
     private $client;
+    private $serializer;
 
-    public function __construct(EntityManager $entityManager, Client $client)
+    public function __construct(EntityManager $entityManager, Client $client, EntitySerializer $serializer)
     {
         $this->entityManager = $entityManager;
         $this->client = $client;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -21,11 +24,8 @@ class Repository
      */
     public function findAll($type)
     {
-        $entities = $this->client->get($type);
-
-        foreach ($entities as $entity) {
-
-        }
+        $response = $this->client->get($type);
+        $entities = $this->serializer->deserialize($response, $type, $this);
 
         return $entities;
     }
@@ -37,7 +37,8 @@ class Repository
      */
     public function find($type, $id)
     {
-        $entity = $this->client->get($type, array($id));
+        $response = $this->client->get($type, array('id' => $id));
+        $entity = $this->serializer->deserialize($response, $type, $this);
 
         return $entity;
     }
@@ -49,9 +50,10 @@ class Repository
      */
     public function findBy($type, array $criteria)
     {
-        $entites = $this->client->get($type, $criteria);
+        $response = $this->client->get($type, $criteria);
+        $entities = $this->serializer->deserialize($response, $type, $this);
 
-        return $entites;
+        return $entities;
     }
 
     /**
@@ -61,7 +63,8 @@ class Repository
      */
     public function findOneBy($type, array $criteria)
     {
-        $entity = $this->client->get($type, $criteria);
+        $response = $this->client->get($type, $criteria);
+        $entity = $this->serializer->deserialize($response, $type, $this);
 
         return $entity;
     }

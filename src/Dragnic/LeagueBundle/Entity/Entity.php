@@ -3,7 +3,7 @@ namespace Dragnic\LeagueBundle\Entity;
 
 use Dragnic\LeagueBundle\Exception;
 
-class Entity
+class Entity extends PropertyIteratorAggregate
 {
     /** @var  array */
     protected $properties;
@@ -11,11 +11,6 @@ class Entity
     public function __construct($properties = array())
     {
         $this->properties = $properties;
-    }
-
-    public function setChampions()
-    {
-        var_dump('test');die;
     }
 
     public function toArray()
@@ -39,12 +34,15 @@ class Entity
         } elseif ('is' === $isOperator) {
             $property = lcfirst(substr($method, 2));
             $value = boolval($this->getProperty($property));
+        } elseif ($this->hasProperty($method)) {
+            $property = $method;
+            $value = $this->getProperty($property);
         } else {
             throw new Exception\UnknownMethodException('The method "' . $method . '" is not supported.');
         }
 
         if (!$this->hasProperty($property)) {
-            throw new Exception\UnknownMethodException('The property "' . $property . '" is not supported.');
+            throw new Exception\UnknownPropertyException('The property "' . $property . '" is not supported.');
         }
 
         return $value;
