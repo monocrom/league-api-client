@@ -14,6 +14,8 @@ class Client
     private $apiKey;
     private $routeExtraParameters;
 
+    private $responseCache;
+
     public function __construct(RouterInterface $router, $baseUrl, $routePrefix, $apiKey, array $routeExtraParameters)
     {
         $this->router = $router;
@@ -22,6 +24,8 @@ class Client
         $this->routePrefix = $routePrefix;
         $this->apiKey = $apiKey;
         $this->routeExtraParameters = $routeExtraParameters;
+
+        $this->responseCache = array();
     }
 
     public static function isCollectionRequest($routeName)
@@ -29,24 +33,31 @@ class Client
         return preg_match('/s$/', $routeName);
     }
 
-    public function get($routeName, array $parameters = array())
+    public function get($routeName, array $parameters = array(), $cacheAble = false)
     {
         $url = $this->generateRoute($routeName, $parameters);
-        var_dump($url . '<br>');
         $request = $this->createClient()->get($url);
         try {
-            $response = $request->send();
-            $result = $response->getBody(true);
+            if ($cacheAble && array_key_exists($url, $this->responseCache)) {
+                $stringResponse = $this->responseCache[$url];
+            } else {
+                $response = $request->send();
+                $stringResponse = $response->getBody(true);
+                if ($cacheAble) {
+                    $this->responseCache[$url] = $stringResponse;
+                }
+            }
+
         } catch (BadResponseException $e) {
             $response = $e->getResponse();
             if (404 === $response->getStatusCode()) {
-                $result = $this->isCollectionRequest($routeName) ? '[]' : '';
+                $stringResponse = $this->isCollectionRequest($routeName) ? '[]' : '';
             } else {
                 throw $e;
             }
         }
 
-        return $result;
+        return $stringResponse;
     }
 
     protected function generateRoute($routeName, array $parameters = array())

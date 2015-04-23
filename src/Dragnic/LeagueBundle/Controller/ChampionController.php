@@ -1,9 +1,8 @@
 <?php
 namespace Dragnic\LeagueBundle\Controller;
 
-use Dragnic\LeagueBundle\DragnicLeagueBundle;
-use Dragnic\LeagueBundle\Repository\Repository;
-use Dragnic\LeagueBundle\Rest\Client;
+use Doctrine\ORM\EntityManager;
+use Dragnic\LeagueBundle\Entity\Entity;
 use Symfony\Component\HttpFoundation\Response;
 
 class ChampionController
@@ -11,21 +10,23 @@ class ChampionController
     const NAME = 'DragnicLeagueBundle:Champion';
 
     private $twig;
-    private $repository;
+    private $entityManager;
 
-    public function __construct(\Twig_Environment $twig, Repository $repository)
+    public function __construct(\Twig_Environment $twig, EntityManager $entityManager)
     {
         $this->twig = $twig;
-        $this->repository = $repository;
+        $this->entityManager = $entityManager;
     }
 
     public function listAction()
     {
-        $champions = $this->repository->findAll('champions');
+        $champions = $this->entityManager->getRepository(Entity::NAME)->findAll();
 
-        foreach ($champions as $champ) {
-            var_dump($champ->getImage());die;
-        }
+//        var_dump($champions);die;
+//
+//        foreach ($champions as $champ) {
+//            var_dump($champ);die;
+//        }
 
         return new Response(
             $this->render(

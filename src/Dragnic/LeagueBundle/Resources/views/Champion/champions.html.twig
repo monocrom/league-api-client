@@ -1,8 +1,29 @@
+{% extends 'DragnicLeagueBundle::layout.html.twig' %}
+
+{% block content %}
+
 <div class="champions">
 {% for champion in champions %}
     <div class="champion" id="champion-{{ champion.id }}">
-        <img src="{{ league_image(champion.image) }}"
-        <span>{{ champion.name }}</span>
+        <img src="{{ league_image(champion) }}" />
+
+        <span class="name">{{ champion.name }}</span>
+        <div class="info">
+            <p>tags</p>
+            <ul>
+                {% for tag in champion.tags %}
+                    <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+            <p>taxonomies</p>
+            <ul>
+                {% for tag in champion.taxonomies %}
+                    <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endfor %}
 </div>
+
+{% endblock %}

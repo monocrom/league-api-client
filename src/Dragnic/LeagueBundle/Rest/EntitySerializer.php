@@ -21,9 +21,7 @@ class EntitySerializer
      */
     public function serialize(Entity $entity)
     {
-        $string = json_encode($entity->toArray());
-
-        return $string;
+        return $this->serializeProperties($entity->toArray());
     }
 
     /**
@@ -36,13 +34,25 @@ class EntitySerializer
         }
 
         $data = json_decode($string, true);
-        if (array_key_exists('data', $data)) {
-            $object = $this->factoryEntities($data['data'], $accessor);
-        } else {
-            $object = null;
-        }
+        $data = array_key_exists('data', $data) ? $data['data'] : $data;
+        $object = $this->factoryEntities($data, $accessor);
 
         return $object;
+    }
+
+    public function serializeProperties(array $properties)
+    {
+        $string = json_encode($properties);
+
+        return $string;
+    }
+
+    public function deserializeProperties($string)
+    {
+        $data = json_decode($string, true);
+        $properties = $this->parseProperties($data);
+
+        return $properties;
     }
 
     protected function factoryEntities($data, $accessor = null)
@@ -91,16 +101,22 @@ class EntitySerializer
 
     protected function createEntity(array $data, $accessor = null)
     {
-        $properties = array(
-            '__accessor' => $accessor,
-        );
+        $properties = $this->parseProperties($data);
+        $properties['__accessor'] = $accessor;
+
+        $entity = new Entity($properties);
+
+        return $entity;
+    }
+
+    protected function parseProperties(array $data)
+    {
+        $properties = array();
 
         foreach ($data as $propertyName => $value) {
             $properties[$propertyName] = $this->factoryEntities($value, $propertyName);
         }
 
-        $entity = new Entity($properties);
-
-        return $entity;
+        return $properties;
     }
 }

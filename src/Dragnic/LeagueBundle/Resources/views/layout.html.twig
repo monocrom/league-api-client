@@ -1,0 +1,23 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>{{ page_title }}</title>
+    <meta name="description" content="{{ page_meta_description }}">
+    <meta name="author" content="SitePoint">
+
+    {% stylesheets '@DragnicLeagueBundle/Resources/public/css/*' %}
+        <link href="{{ asset_url  }}" rel="stylesheet" type="text/css" />
+    {% endstylesheets %}
+
+</head>
+
+<body>
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>
