@@ -18,13 +18,19 @@ class DoctrineListener
     {
         /** @var Entity $entity */
         $entity = $eventArgs->getEntity();
-        $entity->deserializeProperties($this->serializer);
+
+        if ($entity instanceof Entity) {
+            $entity->deserializeProperties($this->serializer);
+        }
     }
 
     public function prePersist(LifecycleEventArgs $eventArgs)
     {
         /** @var Entity $entity */
         $entity = $eventArgs->getEntity();
-        $entity->serializeProperties($this->serializer);
+
+        if ($entity instanceof Entity) {
+            $entity->serializeProperties($this->serializer);
+        }
     }
 }

@@ -10,32 +10,34 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LoadLeagueDataCommand extends ContainerAwareCommand
 {
+    const OPTION_USE_EXISTING = 'use-existing';
+
     protected function configure()
     {
         $this
             ->setName('league:load')
             ->setDescription('Loading all api data to the database')
+            ->addOption(static::OPTION_USE_EXISTING)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $champions = $this->getRepository()->findAll('champions');
+        $useExisting = $input->getOption(static::OPTION_USE_EXISTING);
 
-        $ids = array();
+        if ($useExisting) {
+            $champions = $this->getEntityRepository()->findAll();
+        } else {
+            $this->getEntityManager()->createQuery('DELETE FROM DragnicLeagueBundle:Entity')->execute();
+            $champions = $this->getRepository()->findAll('champions');
+        }
 
         $em = $this->getEntityManager();
         /** @var Entity $champion */
         foreach ($champions as $champion) {
-            $id = $champion->getInternalId();
-            if (array_key_exists($id, $ids)) {
-                continue;
-            } else {
-                $ids[$id] = null;
-                $em->persist($champion);
-            }
+            !$useExisting && $em->persist($champion);
         }
-        $em->flush();
+        !$useExisting && $em->flush();
     }
 
     /**
@@ -52,5 +54,13 @@ class LoadLeagueDataCommand extends ContainerAwareCommand
     protected function getEntityManager()
     {
         return $this->getContainer()->get('doctrine.orm.entity_manager');
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    protected function getEntityRepository()
+    {
+        return $this->getEntityManager()->getRepository(Entity::NAME);
     }
 }

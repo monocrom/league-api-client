@@ -112,6 +112,8 @@ class Entity extends PropertyIteratorAggregate
                 throw new Exception\InsufficientArgumentsException('"' . $method . '" expects at least one argument.');
             }
             $value = $this->setProperty($property, $arguments[0]);
+        } elseif ('has' === $operator) {
+            $value = $this->hasProperty($property);
         } elseif ('is' === $isOperator) {
             $property = lcfirst(substr($method, 2));
             $value = boolval($this->getProperty($property));

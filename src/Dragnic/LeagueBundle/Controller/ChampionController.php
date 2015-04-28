@@ -22,12 +22,6 @@ class ChampionController
     {
         $champions = $this->entityManager->getRepository(Entity::NAME)->findAll();
 
-//        var_dump($champions);die;
-//
-//        foreach ($champions as $champ) {
-//            var_dump($champ);die;
-//        }
-
         return new Response(
             $this->render(
                 'champions',
